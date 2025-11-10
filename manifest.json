@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Parental Blocker - Filtro de Conteúdo",
+  "version": "1.0",
+  "description": "Filtra e censura palavras bloqueadas em páginas da web.",
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+
+  "action": {
+    "default_popup": "index.html",
+    // O BLOCO DEFAULT_ICON FOI REMOVIDO DAQUI
+    "default_title": "Abrir Gerenciador de Palavras"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/content-script.js"],
+      "run_at": "document_end"
+    }
+  ]
+}

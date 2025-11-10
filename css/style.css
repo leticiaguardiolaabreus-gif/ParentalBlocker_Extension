@@ -1,0 +1,340 @@
+/* ---------------------------------------------------- */
+/* VARIÁVEIS DE DESIGN */
+/* ---------------------------------------------------- */
+:root {
+  --bg-primary: #1e87a5; /* Azul Turquesa Principal */
+  --bg-secondary: #d4d4d4; /* Fundo Cinza Claro do Modal */
+  --text-light: #ffffff;
+  --text-dark: #343a40;
+  --toggle-off: #f45a5a; /* Vermelho para Desativado */
+  --toggle-on: #4CAF50; /* Verde para Ativado */
+  --button-primary: #6495ED; /* Azul Claro do botão Atualizar */
+  --tag-bg: #ffffff;
+  --border-radius-lg: 25px; /* Aumentado para borda forte */
+  --border-radius-sm: 8px;
+  --box-shadow-heavy: 0 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------------------------------------------------- */
+/* BASE DA EXTENSÃO (TAMANHO POP-UP) */
+/* ---------------------------------------------------- */
+body {
+  width: 320px;
+  height: 400px;
+  background-color: var(--bg-primary);
+  color: var(--text-light);
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  border-radius: var(--border-radius-lg);
+
+  /* Configuração Flexbox para alinhamento vertical */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Esconde o conteúdo não-visível */
+.hidden {
+  display: none !important;
+}
+
+/* Centraliza o conteúdo da tela (home-view ou management-view) */
+main {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* ---------------------------------------------------- */
+/* CABEÇALHO E CONTROLE DE STATUS */
+/* ---------------------------------------------------- */
+header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.status-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.status-text {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+/* Toggle Switch (sem alterações) */
+.switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--toggle-off); transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--toggle-on); }
+input:checked + .slider:before { transform: translateX(26px); }
+
+/* ---------------------------------------------------- */
+/* MODAL DE ATENÇÃO/LOGIN (Flutuante sobre as views) */
+/* ---------------------------------------------------- */
+.attention-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--bg-secondary);
+  padding: 25px 30px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-heavy);
+  width: 90%;
+  max-width: 280px;
+  text-align: center;
+  z-index: 10;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: none;
+}
+
+.attention-modal h3 {
+  color: #6c757d;
+  margin-bottom: 5px;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.attention-modal p {
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  color: var(--text-dark);
+}
+
+.login-input-modal-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.login-input-modal-group input {
+  width: 100%;
+  max-width: 200px;
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.login-input-modal-group button#confirm-login-btn {
+  padding: 8px 30px;
+  background: #e0e0e0;
+  color: #6c757d;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.login-input-modal-group button:hover {
+  background: #d0d0d0;
+}
+
+/* ---------------------------------------------------- */
+/* BOTÕES DE AÇÃO E RODAPÉ */
+/* ---------------------------------------------------- */
+.home-view-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main-action-btn {
+  padding: 10px;
+  background-color: var(--button-primary);
+  color: var(--text-light);
+  border: none;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: block;
+  width: 80%;
+  max-width: 250px;
+}
+
+.main-action-btn:hover {
+  background-color: #5587e9;
+}
+
+.footer-info {
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 15px;
+}
+
+/* ---------------------------------------------------- */
+/* TELA DE GERENCIAMENTO (PALAVRAS) */
+/* ---------------------------------------------------- */
+#management-view {
+  padding-top: 10px;
+  width: 100%;
+}
+
+.words-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 120px;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  padding: 5px;
+  justify-content: center;
+}
+
+.word-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--tag-bg);
+  color: var(--text-dark);
+  padding: 6px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.word-tag .delete-btn {
+  background: none;
+  border: none;
+  color: #f45a5a;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 5px;
+  padding: 0;
+  font-size: 1em;
+}
+
+.search-label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin-bottom: 5px;
+  display: block;
+  text-align: center;
+}
+
+.search-input-group {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 20px;
+  padding: 0 15px;
+  margin: 0 auto 20px auto;
+  max-width: 250px;
+}
+
+.search-input-group input {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  padding: 10px 5px 10px 10px;
+  font-size: 0.9rem;
+  background: none;
+  color: var(--text-dark);
+}
+
+.search-input-group svg {
+  width: 16px;
+  height: 16px;
+  fill: #999;
+}
+
+.management-controls {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.home-btn {
+  background-color: #3d3d3d;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.home-btn:hover {
+  background-color: #555;
+}
+
+.home-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+
+/* ---------------------------------------------------- */
+/* NOVO: Modal de Confirmação (Sim/Não) */
+/* ---------------------------------------------------- */
+.confirm-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--box-shadow-heavy);
+  width: 80%;
+  max-width: 200px;
+  text-align: center;
+  z-index: 20;
+  color: var(--text-dark);
+  border: 2px solid var(--toggle-off);
+}
+
+.confirm-modal h3 {
+  color: var(--toggle-off);
+  margin-bottom: 10px;
+}
+
+.confirm-buttons button {
+  margin: 5px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.confirm-buttons .yes-btn {
+  background-color: var(--toggle-off);
+  color: white;
+}
+
+.confirm-buttons .no-btn {
+  background-color: #ccc;
+  color: var(--text-dark);
+}
