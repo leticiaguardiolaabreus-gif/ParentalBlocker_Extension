@@ -32,7 +32,7 @@ let pendingAction = null; // Ação: ACTIVATE, DEACTIVATE, MANAGE
 function loadState() {
   return new Promise(resolve => {
     chrome.storage.local.get(['blockedWords', 'extensionStatus', 'lastBlockTimestamp'], (items) => {
-      blockedWords = items.blockedWords ? items.blockedWords : ["exemplo", "palavra", "bloqueada", "gozo"];
+      blockedWords = items.blockedWords ? items.blockedWords : ["exemplo", "palavra", "bloqueada"];
       isExtensionActive = items.extensionStatus === 'active';
       const storedLastBlock = items.lastBlockTimestamp;
       lastBlockInfo.textContent = storedLastBlock ? `Último Bloqueio: ${storedLastBlock}` : `Último Bloqueio: Nunca`;
