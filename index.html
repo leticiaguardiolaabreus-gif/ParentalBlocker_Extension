@@ -1,85 +1,175 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>ParentalBlock</title>
+
+
 
   <link rel="stylesheet" href="css/style.css">
 
+
+
   <style>
-    /* Estilos do SVG que sobraram */
-    #home-icon-svg { fill: var(--text-light); }
-    #search-icon-svg { fill: #999; }
+
+
+
   </style>
 
+
+
 </head>
+
 <body>
 
+
+
 <header>
+
   <h1>ParentalBlock</h1>
+
+
 
   <div class="status-controls">
 
+
+
     <span id="status-label" class="status-text">Desativado</span>
 
+
+
     <label class="switch">
+
       <input type="checkbox" id="toggle-switch">
+
       <span class="slider"></span>
+
     </label>
+
   </div>
+
 </header>
+
+
 
 <main>
 
+
+
   <div id="home-view" class="home-view-container">
+
     <button id="update-words-btn-home" class="main-action-btn">Atualizar palavras</button>
+
   </div>
+
+
 
   <div id="attention-modal" class="attention-modal hidden">
+
     <h3 id="attention-title">ATENÇÃO!</h3>
+
     <p id="attention-message">Digite sua senha para ativar a extensão</p>
 
+
+
     <div class="login-input-modal-group">
-      <input type="password" id="password-input" placeholder="Insira sua senha:">
+
+      <input type="password" id="password-input" placeholder="Senha de Acesso">
+
       <button id="confirm-login-btn">Confirmar</button>
+
     </div>
+
   </div>
+
+
+
 
 
   <div id="management-view" class="hidden">
 
+
+
     <div id="blocked-words-container" class="words-grid">
+
     </div>
+
+
 
     <div id="confirm-delete-modal" class="confirm-modal hidden">
+
       <h3>ATENÇÃO!</h3>
+
       <p>Deseja excluir a palavra?</p>
+
       <div class="confirm-buttons">
+
         <button class="yes-btn">SIM</button>
+
         <button class="no-btn">NÃO</button>
+
       </div>
+
     </div>
+
+
+    <div id="audit-log-view" class="audit-log-container">
+      <h3 class="audit-log-title">🔎 Logs de Auditoria (Tentativas de Senha Incorretas)</h3>
+      <div id="log-entries-container" class="log-entries-display">
+        <p style="color: #999;">Carregando logs...</p>
+      </div>
+      <button id="clear-logs-btn" class="secondary-action-btn clear-logs-button-style">Limpar Logs</button>
+    </div>
+
+
     <label class="search-label" for="add-word-input">Pesquisar/Adicionar palavra:</label>
+
     <div class="search-input-group">
+
       <svg id="search-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+
       <input type="text" id="add-word-input" placeholder="Digite uma palavra para bloquear">
+
     </div>
+
+
 
     <div class="management-controls">
+
       <button id="save-words-btn" class="main-action-btn" style="width: 70%;">Atualizar palavras</button>
 
+
+
       <button id="home-btn" class="home-btn">
+
         <svg id="home-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+
       </button>
+
     </div>
+
   </div>
+
 </main>
 
+
+
 <div id="last-block-info" class="footer-info">
+
   Último Bloqueio: Nunca
+
 </div>
 
+
+
 <script src="js/script.js"></script>
+
 </body>
+
 </html>

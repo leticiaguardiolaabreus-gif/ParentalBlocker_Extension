@@ -1,6 +1,3 @@
-// ====================================================
-// CONSTANTES E VARIÁVEIS GLOBAIS (Mantidas)
-// ====================================================
 const statusLabel = document.getElementById('status-label');
 const toggleSwitch = document.getElementById('toggle-switch');
 const lastBlockInfo = document.getElementById('last-block-info');
@@ -19,24 +16,39 @@ const confirmDeleteModal = document.getElementById('confirm-delete-modal');
 const confirmDeleteYesBtn = confirmDeleteModal.querySelector('.yes-btn');
 const confirmDeleteNoBtn = confirmDeleteModal.querySelector('.no-btn');
 
+// Elementos de Auditoria
+const logEntriesContainer = document.getElementById('log-entries-container'); // Mantido
+const clearLogsBtn = document.getElementById('clear-logs-btn'); // Mantido
+
+// Variáveis de toggle de logs removidas
+// let logsAreDetailed = false; // Removido
+
+
 let blockedWords = [];
 let isExtensionActive = false;
 const CORRECT_PASSWORD = "1234";
 let wordToDelete = null;
 let pendingAction = null; // Ação: ACTIVATE, DEACTIVATE, MANAGE
 
+
 // ====================================================
-// FUNÇÕES DE ARMAZENAMENTO (Mantidas)
+// FUNÇÕES DE ARMAZENAMENTO E AUDITORIA
 // ====================================================
 
 function loadState() {
   return new Promise(resolve => {
-    chrome.storage.local.get(['blockedWords', 'extensionStatus', 'lastBlockTimestamp'], (items) => {
-      blockedWords = items.blockedWords ? items.blockedWords : ["exemplo", "palavra", "bloqueada"];
-      isExtensionActive = items.extensionStatus === 'active';
-      const storedLastBlock = items.lastBlockTimestamp;
-      lastBlockInfo.textContent = storedLastBlock ? `Último Bloqueio: ${storedLastBlock}` : `Último Bloqueio: Nunca`;
-      resolve();
+    // Definimos valores padrão para todas as chaves
+    chrome.storage.local.get({
+        blockedWords: [], // Lista vazia por padrão para novos usuários
+        extensionStatus: 'inactive',
+        lastBlockTimestamp: null,
+        security_logs: []
+    }, (items) => {
+        blockedWords = items.blockedWords;
+        isExtensionActive = items.extensionStatus === 'active';
+        const storedLastBlock = items.lastBlockTimestamp;
+        lastBlockInfo.textContent = storedLastBlock ? `Último Bloqueio: ${storedLastBlock}` : `Último Bloqueio: Nunca`;
+        resolve();
     });
   });
 }
@@ -45,8 +57,64 @@ function saveState() {
   chrome.storage.local.set({blockedWords: blockedWords});
 }
 
+// --- LOGAR TENTATIVAS INCORRETAS ---
+function logFailedAttempt() {
+  const logKey = 'security_logs';
+  const now = new Date();
+
+  const newLogEntry = {
+    timestamp: now.toISOString(),
+    attempt_status: 'incorreta',
+    display_time: now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR')
+  };
+
+  chrome.storage.local.get(logKey, (data) => {
+    let logs = data[logKey] || [];
+
+    logs.push(newLogEntry);
+
+    // Limitar o array de logs para os 100 mais recentes
+    if (logs.length > 100) {
+      logs = logs.slice(logs.length - 100);
+    }
+
+    chrome.storage.local.set({ [logKey]: logs });
+    console.log('Log de tentativa de senha incorreta salvo.');
+  });
+}
+
+// --- RENDERIZAR OS LOGS DE SEGURANÇA NA TELA (AGORA SÓ MOSTRA A CONTAGEM) ---
+function renderSecurityLogs() {
+  const logKey = 'security_logs';
+  logEntriesContainer.innerHTML = ''; // Limpa antes de renderizar
+
+  chrome.storage.local.get(logKey, (data) => {
+    const logs = data[logKey] || [];
+    const attemptCount = logs.length; // Pega o total de tentativas
+
+    if (attemptCount === 0) {
+      logEntriesContainer.innerHTML = '<p style="color: #999;">Nenhuma tentativa de senha incorreta registrada.</p>';
+      return;
+    }
+
+    // Exibe a contagem total com o estilo desejado
+    logEntriesContainer.innerHTML = `<p style="color: #f8f9fa; font-size: 1.1em; font-weight: bold; margin: 0;">${attemptCount} tentativa(s) de senha incorreta.</p>`;
+  });
+}
+
+// --- LIMPAR OS LOGS (Mantida, mas garantindo a chamada de renderização) ---
+function clearSecurityLogs() {
+    if (confirm("Tem certeza que deseja apagar todos os logs de segurança?")) {
+        chrome.storage.local.remove('security_logs', () => {
+            renderSecurityLogs(); // Zera a contagem na tela
+            alert('Logs de segurança apagados.');
+        });
+    }
+}
+
+
 // ====================================================
-// FUNÇÕES DE GERENCIAMENTO DE INTERFACE (Mantidas)
+// FUNÇÕES DE GERENCIAMENTO DE INTERFACE
 // ====================================================
 
 function navigateTo(view) {
@@ -63,6 +131,7 @@ function navigateTo(view) {
   } else if (view === 'management') {
     managementView.classList.remove('hidden');
     renderBlockedWords();
+    renderSecurityLogs(); // Chama a renderização dos logs ao entrar na view
   }
 }
 
@@ -90,7 +159,7 @@ function showAttentionModal(message, isLoginPrompt = false) {
 
   if (isLoginPrompt) {
     attentionModal.querySelector('h3').textContent = "SENHA DE ACESSO:";
-    // Cores baseadas na ação
+
     let titleColor = '#dc3545'; // Padrão vermelho para ações protegidas
     if (pendingAction === 'DEACTIVATE') {
       titleColor = '#357ebd'; // Azul para desativação
@@ -146,7 +215,7 @@ function handleLoginAttempt() {
   const enteredPassword = passwordInput.value;
 
   if (enteredPassword === CORRECT_PASSWORD) {
-
+    // Senha correta: AÇÃO NORMAL
     attentionModal.classList.add('hidden');
     passwordInput.value = '';
 
@@ -160,7 +229,13 @@ function handleLoginAttempt() {
     }
 
   } else {
-    // Mensagem de erro
+    // Senha incorreta:
+
+    logFailedAttempt();
+
+    // Atualiza a visualização da contagem de logs
+    renderSecurityLogs();
+
     let actionText = 'acessar';
     if (pendingAction === 'DEACTIVATE') actionText = 'desativar';
     if (pendingAction === 'ACTIVATE') actionText = 'ativar';
@@ -211,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// 1. EVENTOS GERAIS DE CONTROLE (Switch) - LÓGICA CORRIGIDA E SIMPLIFICADA
+// 1. EVENTOS GERAIS DE CONTROLE (Switch)
 toggleSwitch.addEventListener('change', () => {
 
   if (toggleSwitch.checked) {
@@ -221,7 +296,6 @@ toggleSwitch.addEventListener('change', () => {
       pendingAction = 'ACTIVATE';
       showAttentionModal("Digite sua senha para ATIVAR a extensão:", true);
     } else {
-      // Se já estava ativa, apenas garante o estado
       toggleExtension(true);
     }
   } else {
@@ -231,28 +305,25 @@ toggleSwitch.addEventListener('change', () => {
       pendingAction = 'DEACTIVATE';
       showAttentionModal("Digite sua senha para DESATIVAR a extensão:", true);
     } else {
-      // Se já estava desativada, permite desligar
       toggleExtension(false);
     }
   }
 });
 
 
-// 2. EVENTOS DA TELA HOME (BOTÃO ÚNICO) - EXIGE SENHA SEMPRE
+// 2. EVENTOS DA TELA HOME (BOTÃO ÚNICO)
 updateWordsBtnHome.addEventListener('click', () => {
   pendingAction = 'MANAGE';
 
   if (isExtensionActive) {
-    // Se já está ativa, ainda exige senha para gerenciar (segurança extra)
     showAttentionModal("Digite sua senha para GERENCIAR as palavras:", true);
   } else {
-    // Se está inativa, pede senha (e ativa após login)
     showAttentionModal("Digite sua senha para GERENCIAR as palavras (Irá ATIVAR a extensão):", true);
   }
 });
 
 
-// 3. EVENTOS DO MODAL DE LOGIN (Mantidos)
+// 3. EVENTOS DO MODAL DE LOGIN
 confirmLoginBtn.addEventListener('click', handleLoginAttempt);
 
 passwordInput.addEventListener('keypress', (e) => {
@@ -262,7 +333,7 @@ passwordInput.addEventListener('keypress', (e) => {
 });
 
 
-// 4. EVENTOS DA TELA DE GERENCIAMENTO (Mantidos)
+// 4. EVENTOS DA TELA DE GERENCIAMENTO
 homeBtn.addEventListener('click', () => {
   navigateTo('home');
 });
@@ -291,3 +362,7 @@ confirmDeleteNoBtn.addEventListener('click', () => {
   confirmDeleteModal.classList.add('hidden');
   wordToDelete = null;
 });
+
+// 5. EVENTOS DE AUDITORIA (Mantidos, mas sem o toggleLogViewBtn)
+clearLogsBtn.addEventListener('click', clearSecurityLogs);
+// toggleLogViewBtn.addEventListener('click', toggleDetailedLogs); // Removido
